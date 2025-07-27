@@ -1,0 +1,149 @@
+/* src/components/Dashboard.css */
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f2f2f2;
+}
+
+.dashboard-container {
+  background-color: #fff;
+  padding: 30px;
+  margin: 40px auto;
+  max-width: 700px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.logout-button {
+  background-color: #d32f2f;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  float: right;
+}
+
+.logout-button:hover {
+  background-color: #b71c1c;
+}
+
+.transaction-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.transaction-form select,
+.transaction-form input {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+}
+
+.transaction-form button {
+  padding: 10px;
+  font-size: 16px;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.transaction-form button:hover {
+  background-color: #1976d2;
+}
+
+.chart-wrapper {
+  margin: 30px auto;
+  text-align: center;
+}
+
+h3 {
+  margin-top: 40px;
+  color: #444;
+}
+
+.transaction-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.transaction-list li {
+  background-color: #f9f9f9;
+  margin-bottom: 12px;
+  padding: 12px;
+  border-left: 5px solid #ccc;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.transaction-list li.income {
+  border-color: #4caf50;
+}
+
+.transaction-list li.expense {
+  border-color: #f44336;
+}
+
+.transaction-buttons button {
+  margin-left: 10px;
+  padding: 5px 8px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.edit-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #388e3c;
+}
+
+.delete-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #d32f2f;
+}
+
+/* Responsive layout */
+@media (max-width: 600px) {
+  .dashboard-container {
+    padding: 20px;
+    margin: 20px;
+  }
+
+  .logout-button {
+    float: none;
+    display: block;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .transaction-list li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .transaction-buttons {
+    margin-top: 10px;
+  }
+}
