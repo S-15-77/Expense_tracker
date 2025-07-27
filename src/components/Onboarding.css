@@ -1,0 +1,108 @@
+/* src/components/Onboarding.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #0b0f1a;
+  color: #ffffff;
+}
+
+.hero-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at top left, #101c2e 0%, #0b0f1a 100%);
+  padding: 60px 5%;
+}
+
+.hero-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  width: 100%;
+  gap: 60px;
+}
+
+.text-area {
+  flex: 1;
+}
+
+.text-area h1 {
+  font-size: 44px;
+  line-height: 1.3;
+  font-weight: 600;
+  color: #f2f2f2;
+}
+
+.text-area h1 span {
+  color: #40ffbf;
+}
+
+.text-area p {
+  margin-top: 20px;
+  font-size: 16px;
+  color: #b5b5b5;
+  max-width: 500px;
+}
+
+.cta-buttons {
+  margin-top: 30px;
+}
+
+.btn-green {
+  background-color: #40ffbf;
+  color: #0b0f1a;
+  border: none;
+  padding: 12px 24px;
+  font-weight: bold;
+  font-size: 15px;
+  border-radius: 30px;
+  margin-right: 15px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-green:hover {
+  background-color: #29eaa5;
+}
+
+.btn-dark {
+  background-color: #222;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 15px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-dark:hover {
+  background-color: #333;
+}
+
+.mockup-area {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.screen-mockup {
+  width: 90%;
+  height: 400px;
+  background-color: #161b26;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+  font-size: 18px;
+  font-style: italic;
+  border: 2px dashed #2b2b2b;
+  box-shadow: 0 0 20px #1affc6a0;
+}
