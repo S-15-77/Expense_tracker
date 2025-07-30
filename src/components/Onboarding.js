@@ -1,8 +1,19 @@
 // src/components/Onboarding.js
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Onboarding.css';
 
 function Onboarding() {
+  const navigate = useNavigate();
+
+  const handleGetLogin = () => {
+    navigate('/login');
+  };
+
+  const handleSeeRegister = () => {
+    navigate('/register');
+  };
+
   return (
     <div className="hero-wrapper">
       <div className="hero-content">
@@ -14,8 +25,8 @@ function Onboarding() {
             Simplify your budgeting. Visualize your spending. Build the habits that lead to financial freedom — all in one app.
           </p>
           <div className="cta-buttons">
-            <button className="btn-green">Get Started</button>
-            <button className="btn-dark">See Plans</button>
+            <button className="btn-green" onClick={handleGetLogin}>Login</button>
+            <button className="btn-dark" onClick={handleSeeRegister}>Register</button>
           </div>
         </div>
 
