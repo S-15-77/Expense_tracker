@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './Register.css'; // ✅ Import CSS
 
 function Register() {
@@ -13,7 +13,7 @@ function Register() {
     e.preventDefault();
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       alert(error.message);
     }
@@ -39,7 +39,7 @@ function Register() {
         />
         <button type="submit">Register</button>
       </form>
-      <p>Already have an account? <a href="/login">Login here</a></p>
+      <p>Already have an account? <Link to="/login">Login here</Link></p>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './Login.css'; // ✅ Import CSS
 
 function Login() {
@@ -13,7 +13,7 @@ function Login() {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       alert(error.message);
     }
@@ -39,7 +39,7 @@ function Login() {
         />
         <button type="submit">Login</button>
       </form>
-      <p>Don't have an account? <a href="/register">Register here</a></p>
+      <p>Don't have an account? <Link to="/register">Register here</Link></p>
     </div>
   );
 }
