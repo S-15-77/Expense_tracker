@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
+<<<<<<< HEAD
 import './Register.css';
+=======
+import './Register.css'; // ✅ Import CSS
+>>>>>>> temp-update
 
 function Register() {
   const [email, setEmail] = useState('');
@@ -24,6 +28,7 @@ function Register() {
   };
 
   return (
+<<<<<<< HEAD
     <div className="register-wrapper">
       <div className="register-container">
         <div className="register-header">
@@ -65,6 +70,28 @@ function Register() {
           <p>Already have an account? <Link to="/login" className="link">Sign in here</Link></p>
         </div>
       </div>
+=======
+    <div className="register-container">
+      <h2>Register</h2>
+      <form onSubmit={handleRegister}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Register</button>
+      </form>
+      <p>Already have an account? <Link to="/login">Login here</Link></p>
+>>>>>>> temp-update
     </div>
   );
 }
