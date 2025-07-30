@@ -12,7 +12,7 @@ import {
 } from 'firebase/firestore';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import ChartComponent from './ChartComponent';
-import './Dashboard.css'; // ✅ Import CSS
+import './Dashboard.css';
 
 function Dashboard() {
   const [user, setUser] = useState(null);
@@ -67,13 +67,20 @@ function Dashboard() {
     }
   };
 
+  const handleCancelEdit = () => {
+    setEditId(null);
+    setAmount('');
+    setCategory('');
+    setType('expense');
+  };
+
   const handleLogout = () => {
     signOut(auth);
   };
 
   const handleEdit = (transaction) => {
     setEditId(transaction.id);
-    setAmount(transaction.amount);
+    setAmount(transaction.amount.toString());
     setCategory(transaction.category);
     setType(transaction.type);
   };
@@ -94,47 +101,125 @@ function Dashboard() {
     .filter((t) => t.type === 'expense')
     .reduce((acc, t) => acc + t.amount, 0);
 
+  const balance = income - expense;
+
   return (
-    <div className="dashboard-container">
-      <h2>Welcome, {user?.email}</h2>
-      <button onClick={handleLogout} className="logout-button">Logout</button>
+    <div className="dashboard-wrapper">
+      <div className="dashboard-container">
+        <div className="dashboard-header">
+          <div className="header-content">
+            <div className="header-text">
+              <h1>Welcome back, {user?.email?.split('@')[0]}</h1>
+              <p>Track your expenses and manage your budget</p>
+            </div>
+            <button onClick={handleLogout} className="logout-button">
+              Logout
+            </button>
+          </div>
+        </div>
 
-      <form onSubmit={handleAddTransaction} className="transaction-form">
-        <select value={type} onChange={(e) => setType(e.target.value)}>
-          <option value="expense">Expense</option>
-          <option value="income">Income</option>
-        </select>
-        <input
-          type="number"
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Category (e.g., Rent, Salary)"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          required
-        />
-        <button type="submit">{editId ? 'Update' : 'Add'}</button>
-      </form>
+        <div className="stats-grid">
+          <div className="stat-card income">
+            <h3>Total Income</h3>
+            <div className="amount">${income.toFixed(2)}</div>
+          </div>
+          <div className="stat-card expense">
+            <h3>Total Expenses</h3>
+            <div className="amount">${expense.toFixed(2)}</div>
+          </div>
+          <div className="stat-card balance">
+            <h3>Balance</h3>
+            <div className="amount">${balance.toFixed(2)}</div>
+          </div>
+        </div>
 
-      <ChartComponent income={income} expense={expense} />
+        <div className="transaction-section">
+          <h3>Add Transaction</h3>
+          <form onSubmit={handleAddTransaction} className="transaction-form">
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="type">Type</label>
+                <select
+                  id="type"
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                >
+                  <option value="expense">Expense</option>
+                  <option value="income">Income</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="amount">Amount</label>
+                <input
+                  id="amount"
+                  type="number"
+                  placeholder="Enter amount"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <label htmlFor="category">Category</label>
+              <input
+                id="category"
+                type="text"
+                placeholder="e.g., Rent, Salary, Food"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-actions">
+              <button type="submit" className="btn-primary">
+                {editId ? 'Update Transaction' : 'Add Transaction'}
+              </button>
+              {editId && (
+                <button type="button" onClick={handleCancelEdit} className="btn-secondary">
+                  Cancel
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
 
-      <h3>Transactions:</h3>
-      <ul className="transaction-list">
-        {transactions.map((t) => (
-          <li key={t.id}>
-            [{t.type}] ${t.amount.toFixed(2)} - {t.category}
-            <span className="transaction-buttons">
-              <button className="edit-btn" onClick={() => handleEdit(t)}>Edit</button>
-              <button className="delete-btn" onClick={() => handleDelete(t.id)}>Delete</button>
-            </span>
-          </li>
-        ))}
-      </ul>
+        <div className="chart-section">
+          {/* <h3>Income vs Expenses</h3> */}
+          <div className="chart-container">
+            <ChartComponent income={income} expense={expense} />
+          </div>
+        </div>
+
+        <div className="transactions-section">
+          <h3>Recent Transactions</h3>
+          <div className="transactions-list">
+            {transactions.length === 0 ? (
+              <div style={{ textAlign: 'center', color: '#b5b5b5', padding: '40px' }}>
+                No transactions yet. Add your first transaction above!
+              </div>
+            ) : (
+              transactions.map((t) => (
+                <div key={t.id} className={`transaction-item ${t.type}`}>
+                  <div className="transaction-info">
+                    <div className="transaction-type">{t.type}</div>
+                    <div className="transaction-category">{t.category}</div>
+                    <div className="transaction-amount">${t.amount.toFixed(2)}</div>
+                  </div>
+                  <div className="transaction-actions">
+                    <button className="btn-edit" onClick={() => handleEdit(t)}>
+                      Edit
+                    </button>
+                    <button className="btn-delete" onClick={() => handleDelete(t.id)}>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
