@@ -14,7 +14,7 @@ function Onboarding() {
             Simplify your budgeting. Visualize your spending. Build the habits that lead to financial freedom — all in one app.
           </p>
           <div className="cta-buttons">
-            <button className="btn-green">Get Started</button>
+            <button className="btn-green">Login</button>
             <button className="btn-dark">See Plans</button>
           </div>
         </div>
