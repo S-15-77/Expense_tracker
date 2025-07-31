@@ -1,16 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { auth, db } from '../firebase';
-import {
-  collection,
-  addDoc,
-  query,
-  where,
-  onSnapshot,
-  deleteDoc,
-  doc,
-  updateDoc,
-} from 'firebase/firestore';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { auth, db, collection } from '../azure-simple';
 import ChartComponent from './ChartComponent';
 import './Dashboard.css';
 
@@ -23,7 +12,7 @@ function Dashboard() {
   const [editId, setEditId] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       if (currentUser) setUser(currentUser);
       else window.location.href = '/login';
     });
@@ -32,11 +21,18 @@ function Dashboard() {
 
   useEffect(() => {
     if (!user) return;
-    const q = query(collection(db, 'transactions'), where('userId', '==', user.uid));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    const q = db.query(collection(db, 'transactions'), {
+      type: 'where',
+      field: 'userId',
+      value: user.uid
+    });
+
+    const unsubscribe = q.onSnapshot((snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc }));
       setTransactions(data);
     });
+
     return () => unsubscribe();
   }, [user]);
 
@@ -45,14 +41,14 @@ function Dashboard() {
     if (!amount || !category) return;
     try {
       if (editId) {
-        await updateDoc(doc(db, 'transactions', editId), {
+        await db.updateDoc(db.doc('transactions', editId), {
           type,
           amount: parseFloat(amount),
           category,
         });
         setEditId(null);
       } else {
-        await addDoc(collection(db, 'transactions'), {
+        await db.addDoc(collection(db, 'transactions'), {
           type,
           amount: parseFloat(amount),
           category,
@@ -75,7 +71,7 @@ function Dashboard() {
   };
 
   const handleLogout = () => {
-    signOut(auth);
+    auth.signOut();
   };
 
   const handleEdit = (transaction) => {
@@ -87,7 +83,7 @@ function Dashboard() {
 
   const handleDelete = async (id) => {
     try {
-      await deleteDoc(doc(db, 'transactions', id));
+      await db.deleteDoc(db.doc('transactions', id));
     } catch (err) {
       alert(err.message);
     }
@@ -185,7 +181,7 @@ function Dashboard() {
         </div>
 
         <div className="chart-section">
-          {/* <h3>Income vs Expenses</h3> */}
+          <h3>Income vs Expenses</h3>
           <div className="chart-container">
             <ChartComponent income={income} expense={expense} />
           </div>

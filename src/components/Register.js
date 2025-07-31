@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
+import { auth } from '../azure-simple';
 import { useNavigate, Link } from 'react-router-dom';
-import './Register.css'; // ✅ Keep CSS import
+import './Register.css';
 
 function Register() {
   const [email, setEmail] = useState('');
@@ -14,7 +13,7 @@ function Register() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      await auth.createUserWithEmailAndPassword(email, password);
       navigate('/dashboard');
     } catch (error) {
       alert(error.message);
@@ -30,7 +29,7 @@ function Register() {
           <h1>Create Account</h1>
           <p>Join BudgetWise to start tracking your expenses</p>
         </div>
-
+        
         <form onSubmit={handleRegister} className="register-form">
           <div className="form-group">
             <label htmlFor="email">Email</label>
@@ -43,7 +42,7 @@ function Register() {
               required
             />
           </div>
-
+          
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
@@ -55,17 +54,14 @@ function Register() {
               required
             />
           </div>
-
+          
           <button type="submit" className="register-btn" disabled={isLoading}>
             {isLoading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
-
+        
         <div className="register-footer">
-          <p>
-            Already have an account?{' '}
-            <Link to="/login" className="link">Sign in here</Link>
-          </p>
+          <p>Already have an account? <Link to="/login" className="link">Sign in here</Link></p>
         </div>
       </div>
     </div>

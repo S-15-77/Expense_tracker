@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
+import { auth } from '../azure-simple';
 import { useNavigate, Link } from 'react-router-dom';
-import './Login.css'; // ✅ Keep the CSS import
+import './Login.css';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -14,7 +13,7 @@ function Login() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await auth.signInWithEmailAndPassword(email, password);
       navigate('/dashboard');
     } catch (error) {
       alert(error.message);
