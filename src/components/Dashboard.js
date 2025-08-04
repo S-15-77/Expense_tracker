@@ -20,8 +20,10 @@ function Dashboard({user}) {
   const [type, setType] = useState('expense');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
+  const [customCategory, setCustomCategory] = useState('');
   const [transactions, setTransactions] = useState([]);
   const [editId, setEditId] = useState(null);
+  const [categoryFilter, setCategoryFilter] = useState('All');
 
   useEffect(() => {
     if (!user) window.location.href = '/login';
@@ -120,6 +122,22 @@ function Dashboard({user}) {
     saveAs(blob, 'transactions.csv');
   };
 
+  const predefinedCategories = [
+    'Bills',
+    'Food',
+    'Shopping',
+    'Transport',
+    'Salary',
+    'Entertainment',
+    'Other'
+  ];
+
+  // Get unique custom categories from transactions (not in predefined)
+  const customCategories = Array.from(new Set(transactions.map(t => t.category)))
+    .filter(cat => cat && !predefinedCategories.includes(cat));
+  // For filter dropdown: All + predefined + custom
+  const filterCategories = ['All', ...predefinedCategories, ...customCategories];
+
   return (
     <div className="dashboard-wrapper">
       <div className="dashboard-container">
@@ -182,14 +200,38 @@ function Dashboard({user}) {
             </div>
             <div className="form-group">
               <label htmlFor="category">Category</label>
-              <input
+              <select
                 id="category"
-                type="text"
-                placeholder="e.g., Rent, Salary, Food"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                value={predefinedCategories.includes(category) ? category : (category ? 'custom' : '')}
+                onChange={e => {
+                  if (e.target.value === 'custom') {
+                    setCategory('');
+                  } else {
+                    setCategory(e.target.value);
+                    setCustomCategory('');
+                  }
+                }}
                 required
-              />
+              >
+                <option value="" disabled>Select category</option>
+                {predefinedCategories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+                <option value="custom">Custom...</option>
+              </select>
+              {(!predefinedCategories.includes(category)) && (
+                <input
+                  type="text"
+                  placeholder="Enter custom category"
+                  value={customCategory}
+                  onChange={e => {
+                    setCustomCategory(e.target.value);
+                    setCategory(e.target.value);
+                  }}
+                  style={{ marginTop: 8 }}
+                  required
+                />
+              )}
             </div>
             <div className="form-actions">
               <button type="submit" className="btn-primary">
@@ -213,13 +255,32 @@ function Dashboard({user}) {
 
         <div className="transactions-section">
           <h3>Recent Transactions</h3>
+          <div style={{ marginBottom: 16 }}>
+            <label htmlFor="categoryFilter" className="category-filter-label">Filter by Category:</label>
+            <select
+              id="categoryFilter"
+              value={categoryFilter}
+              onChange={e => setCategoryFilter(e.target.value)}
+              className="category-filter-select"
+            >
+              {filterCategories.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
           <div className="transactions-list">
-            {transactions.length === 0 ? (
+            {(categoryFilter === 'All'
+              ? transactions
+              : transactions.filter(t => t.category === categoryFilter)
+            ).length === 0 ? (
               <div style={{ textAlign: 'center', color: '#b5b5b5', padding: '40px' }}>
                 No transactions yet. Add your first transaction above!
               </div>
             ) : (
-              transactions.map((t) => (
+              (categoryFilter === 'All'
+                ? transactions
+                : transactions.filter(t => t.category === categoryFilter)
+              ).map((t) => (
                 <div key={t.id} className={`transaction-item ${t.type}`}>
                   <div className="transaction-info">
                     <div className="transaction-type">{t.type}</div>
