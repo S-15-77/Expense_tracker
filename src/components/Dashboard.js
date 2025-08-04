@@ -38,7 +38,9 @@ function Dashboard({user}) {
     if (!user) return;
     const q = query(collection(db, 'transactions'), where('userId', '==', user.uid));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const data = snapshot.docs
+  .map(doc => ({ id: doc.id, ...doc.data() }))
+  .sort((a, b) => new Date(b.date || b.createdAt?.toDate?.() || b.createdAt) - new Date(a.date || a.createdAt?.toDate?.() || a.createdAt));
       setTransactions(data);
     });
     return () => unsubscribe();
@@ -123,12 +125,18 @@ function Dashboard({user}) {
       alert('No transactions to export.');
       return;
     }
-    const headers = ['Type', 'Amount', 'Category', 'Created At'];
+    const headers = ['Title', 'Type', 'Amount', 'Category', 'Date'];
     const rows = transactions.map(t => [
+      t.title,
       t.type,
       t.amount,
       t.category,
-      t.createdAt instanceof Date ? t.createdAt.toISOString() : (t.createdAt?.toDate ? t.createdAt.toDate().toISOString() : t.createdAt)
+      t.date || '',
+      // t.createdAt instanceof Date
+      //   ? t.createdAt.toISOString().split('T')[0]
+      //   : (t.createdAt?.toDate
+      //       ? t.createdAt.toDate().toISOString().split('T')[0]
+      //       : new Date(t.createdAt).toISOString().split('T')[0])
     ]);
     const csvContent = [headers, ...rows]
       .map(e => e.map(String).map(s => '"' + s.replace(/"/g, '""') + '"').join(','))
@@ -310,7 +318,9 @@ function Dashboard({user}) {
               : transactions.filter(t => t.category === categoryFilter)
             ).length === 0 ? (
               <div style={{ textAlign: 'center', color: '#b5b5b5', padding: '40px' }}>
-                No transactions yet. Add your first transaction above!
+                {categoryFilter === 'All'
+                  ? 'No transactions yet. Add your first transaction above!'
+                  : `No "${categoryFilter}" transactions found.`}
               </div>
             ) : (
               (categoryFilter === 'All'

@@ -534,3 +534,17 @@ body {
     padding: 8px 12px;
   }
 }
+
+/* Add inside .header-content in Dashboard.css */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .logout-button {
+    width: 100%;
+    max-width: 220px;
+    text-align: center;
+  }
+}
