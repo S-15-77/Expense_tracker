@@ -16,9 +16,37 @@ function Login() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       navigate('/dashboard');
-    } catch (error) {
-      alert(error.message);
-    } finally {
+    } 
+    catch (error) {
+      console.log('[Firebase Login Error]', error);
+    
+      let message = 'Login failed. Please try again.';
+    
+      if (error.code) {
+        switch (error.code) {
+          case 'auth/user-not-found':
+            message = 'No user found with this email.';
+            break;
+          case 'auth/wrong-password':
+            message = 'Incorrect password. Please try again.';
+            break;
+          case 'auth/invalid-email':
+            message = 'Invalid email address.';
+            break;
+          case 'auth/too-many-requests':
+            message = 'Too many failed attempts. Please try again later.';
+            break;
+          default:
+            message = `Error: ${error.message}`;
+        }
+      } else {
+        message = `Unexpected error: ${error.message || error}`;
+      }
+    
+      alert(message);
+    }
+    
+    finally {
       setIsLoading(false);
     }
   };

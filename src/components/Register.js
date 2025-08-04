@@ -17,7 +17,21 @@ function Register() {
       await createUserWithEmailAndPassword(auth, email, password);
       navigate('/dashboard');
     } catch (error) {
-      alert(error.message);
+      let message = '';
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          message = 'This email is already registered.';
+          break;
+        case 'auth/invalid-email':
+          message = 'Invalid email address.';
+          break;
+        case 'auth/weak-password':
+          message = 'Password should be at least 6 characters.';
+          break;
+        default:
+          message = error.message;
+      }
+      alert(message);
     } finally {
       setIsLoading(false);
     }
