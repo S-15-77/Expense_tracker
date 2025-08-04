@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
+import { collection, setDoc, doc } from 'firebase/firestore';
+import { auth, db } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
 import './Register.css'; // ✅ Keep CSS import
 import { toast } from 'react-toastify';
@@ -8,6 +9,7 @@ import { toast } from 'react-toastify';
 function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -15,7 +17,13 @@ function Register() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      // Save user name in Firestore
+      await setDoc(doc(db, 'users', userCredential.user.uid), {
+        name,
+        email,
+        createdAt: new Date()
+      });
       navigate('/dashboard');
     } catch (error) {
       let message = '';
@@ -32,7 +40,6 @@ function Register() {
         default:
           message = error.message;
       }
-      // alert(message);
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -48,6 +55,18 @@ function Register() {
         </div>
 
         <form onSubmit={handleRegister} className="register-form">
+          <div className="form-group">
+            <label htmlFor="name">Name</label>
+            <input
+              id="name"
+              type="text"
+              placeholder="Enter your name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
