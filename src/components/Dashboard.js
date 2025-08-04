@@ -13,6 +13,7 @@ import {
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import ChartComponent from './ChartComponent';
 import './Dashboard.css';
+import { saveAs } from 'file-saver';
 
 function Dashboard({user}) {
   // const [user, setUser] = useState(null);
@@ -99,6 +100,26 @@ function Dashboard({user}) {
 
   const balance = income - expense;
 
+  // CSV export helper
+  const exportToCSV = () => {
+    if (!transactions.length) {
+      alert('No transactions to export.');
+      return;
+    }
+    const headers = ['Type', 'Amount', 'Category', 'Created At'];
+    const rows = transactions.map(t => [
+      t.type,
+      t.amount,
+      t.category,
+      t.createdAt instanceof Date ? t.createdAt.toISOString() : (t.createdAt?.toDate ? t.createdAt.toDate().toISOString() : t.createdAt)
+    ]);
+    const csvContent = [headers, ...rows]
+      .map(e => e.map(String).map(s => '"' + s.replace(/"/g, '""') + '"').join(','))
+      .join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    saveAs(blob, 'transactions.csv');
+  };
+
   return (
     <div className="dashboard-wrapper">
       <div className="dashboard-container">
@@ -110,6 +131,9 @@ function Dashboard({user}) {
             </div>
             <button onClick={handleLogout} className="logout-button">
               Logout
+            </button>
+            <button onClick={exportToCSV} className="logout-button" style={{ background: 'linear-gradient(135deg, #40ffbf 0%, #29eaa5 100%)', marginLeft: 10 }}>
+              Export CSV
             </button>
           </div>
         </div>
