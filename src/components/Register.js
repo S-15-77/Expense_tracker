@@ -3,6 +3,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
 import './Register.css'; // ✅ Keep CSS import
+import { toast } from 'react-toastify';
 
 function Register() {
   const [email, setEmail] = useState('');
@@ -31,7 +32,8 @@ function Register() {
         default:
           message = error.message;
       }
-      alert(message);
+      // alert(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }

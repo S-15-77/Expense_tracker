@@ -3,6 +3,8 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
 import './Login.css'; // ✅ Keep the CSS import
+import { toast } from 'react-toastify';
+
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -43,7 +45,8 @@ function Login() {
         message = `Unexpected error: ${error.message || error}`;
       }
     
-      alert(message);
+      // alert(message);
+      toast.error(message);
     }
     
     finally {
