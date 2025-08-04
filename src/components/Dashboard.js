@@ -24,6 +24,11 @@ function Dashboard({user}) {
   const [transactions, setTransactions] = useState([]);
   const [editId, setEditId] = useState(null);
   const [categoryFilter, setCategoryFilter] = useState('All');
+  const [title, setTitle] = useState('');
+  const [date, setDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  });
 
   useEffect(() => {
     if (!user) window.location.href = '/login';
@@ -41,13 +46,15 @@ function Dashboard({user}) {
 
   const handleAddTransaction = async (e) => {
     e.preventDefault();
-    if (!amount || !category) return;
+    if (!amount || !category || !title || !date) return;
     try {
       if (editId) {
         await updateDoc(doc(db, 'transactions', editId), {
           type,
           amount: parseFloat(amount),
           category,
+          title,
+          date,
         });
         setEditId(null);
       } else {
@@ -55,12 +62,17 @@ function Dashboard({user}) {
           type,
           amount: parseFloat(amount),
           category,
+          title,
+          date,
           userId: user.uid,
           createdAt: new Date(),
         });
       }
       setAmount('');
       setCategory('');
+      setCustomCategory('');
+      setTitle('');
+      setDate(new Date().toISOString().split('T')[0]);
     } catch (err) {
       alert(err.message);
     }
@@ -81,7 +93,10 @@ function Dashboard({user}) {
     setEditId(transaction.id);
     setAmount(transaction.amount.toString());
     setCategory(transaction.category);
+    setCustomCategory(predefinedCategories.includes(transaction.category) ? '' : transaction.category);
     setType(transaction.type);
+    setTitle(transaction.title || '');
+    setDate(transaction.date || (transaction.createdAt && (transaction.createdAt.toDate ? transaction.createdAt.toDate().toISOString().split('T')[0] : new Date(transaction.createdAt).toISOString().split('T')[0])) || new Date().toISOString().split('T')[0]);
   };
 
   const handleDelete = async (id) => {
@@ -199,6 +214,27 @@ function Dashboard({user}) {
               </div>
             </div>
             <div className="form-group">
+              <label htmlFor="title">Title</label>
+              <input
+                id="title"
+                type="text"
+                placeholder="Enter transaction title"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="date">Date</label>
+              <input
+                id="date"
+                type="date"
+                value={date}
+                onChange={e => setDate(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-group">
               <label htmlFor="category">Category</label>
               <select
                 id="category"
@@ -283,8 +319,10 @@ function Dashboard({user}) {
               ).map((t) => (
                 <div key={t.id} className={`transaction-item ${t.type}`}>
                   <div className="transaction-info">
+                    <div className="transaction-title" style={{ fontWeight: 600, fontSize: 16, marginBottom: 2 }}>{t.title}</div>
                     <div className="transaction-type">{t.type}</div>
                     <div className="transaction-category">{t.category}</div>
+                    <div className="transaction-date" style={{ color: '#b5b5b5', fontSize: 13, marginBottom: 2 }}>Date: {t.date || (t.createdAt && (t.createdAt.toDate ? t.createdAt.toDate().toISOString().split('T')[0] : new Date(t.createdAt).toISOString().split('T')[0]))}</div>
                     <div className="transaction-amount">${t.amount.toFixed(2)}</div>
                   </div>
                   <div className="transaction-actions">
