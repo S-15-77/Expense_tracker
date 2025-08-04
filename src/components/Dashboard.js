@@ -14,8 +14,8 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import ChartComponent from './ChartComponent';
 import './Dashboard.css';
 
-function Dashboard() {
-  const [user, setUser] = useState(null);
+function Dashboard({user}) {
+  // const [user, setUser] = useState(null);
   const [type, setType] = useState('expense');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
@@ -23,12 +23,8 @@ function Dashboard() {
   const [editId, setEditId] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) setUser(currentUser);
-      else window.location.href = '/login';
-    });
-    return () => unsubscribe();
-  }, []);
+    if (!user) window.location.href = '/login';
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;

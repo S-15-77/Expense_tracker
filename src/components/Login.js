@@ -4,12 +4,14 @@ import { auth } from '../firebase';
 import { useNavigate, Link } from 'react-router-dom';
 import './Login.css'; // ✅ Keep the CSS import
 import { toast } from 'react-toastify';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -54,6 +56,37 @@ function Login() {
     }
   };
 
+  const handlePasswordReset = async () => {
+    if (!email) {
+      toast.error('Please enter your email to reset your password.');
+      return;
+    }
+    setResetting(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      console.log('Password reset email sent!');
+      console.log(email);
+      toast.success('Password reset email sent! Check your inbox.');
+    } catch (error) {
+      let message = 'Failed to send reset email.';
+      if (error.code) {
+        switch (error.code) {
+          case 'auth/user-not-found':
+            message = 'No user found with this email.';
+            break;
+          case 'auth/invalid-email':
+            message = 'Invalid email address.';
+            break;
+          default:
+            message = error.message;
+        }
+      }
+      toast.error(message);
+    } finally {
+      setResetting(false);
+    }
+  };
+
   return (
     <div className="login-wrapper">
       <div className="login-container">
@@ -89,6 +122,15 @@ function Login() {
           
           <button type="submit" className="login-btn" disabled={isLoading}>
             {isLoading ? 'Signing In...' : 'Sign In'}
+          </button>
+          <button
+            type="button"
+            className="login-btn secondary-btn"
+            style={{ marginTop: 10 }}
+            onClick={handlePasswordReset}
+            disabled={resetting}
+          >
+            {resetting ? 'Sending reset email...' : 'Forgot Password?'}
           </button>
         </form>
         
