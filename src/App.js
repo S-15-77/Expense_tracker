@@ -5,17 +5,16 @@ import Register from './components/Register';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Onboarding from './components/Onboarding';
+import Watermark from './components/Watermark';
 import { ToastContainer } from 'react-toastify';
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
 import { Navigate } from 'react-router-dom';
 
-
 function App() {
-
-  const [user,setUser] = useState(null);
-  const [isLoading,setIsLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -39,9 +38,10 @@ function App() {
           <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
           <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
         </Routes>
+        <Watermark />
       </Router>
       <ToastContainer position="top-right" autoClose={3000} />
-      </>
+    </>
   );
 }
 
