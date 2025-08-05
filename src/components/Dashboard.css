@@ -45,9 +45,10 @@ body {
 .header-content {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: 20px;
+  min-height: 80px;
 }
 
 .header-text h1 {
@@ -66,6 +67,36 @@ body {
   font-size: 16px;
 }
 
+.header-buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 80px;
+  gap: 12px;
+}
+
+.export-button {
+  background: linear-gradient(135deg, #40ffbf 0%, #29eaa5 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  width: 120px;
+  text-align: center;
+}
+
+.export-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(64, 255, 191, 0.3);
+}
+
 .logout-button {
   background: linear-gradient(135deg, #ff4757 0%, #ff3742 100%);
   color: white;
@@ -78,6 +109,8 @@ body {
   font-size: 14px;
   transition: all 0.3s ease;
   white-space: nowrap;
+  width: 120px;
+  text-align: center;
 }
 
 .logout-button:hover {

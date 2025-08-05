@@ -170,12 +170,14 @@ function Dashboard({user}) {
               <h1>Welcome back, {user?.email?.split('@')[0]}</h1>
               <p>Track your expenses and manage your budget</p>
             </div>
-            <button onClick={handleLogout} className="logout-button">
-              Logout
-            </button>
-            <button onClick={exportToCSV} className="logout-button" style={{ background: 'linear-gradient(135deg, #40ffbf 0%, #29eaa5 100%)', marginLeft: 10 }}>
-              Export CSV
-            </button>
+            <div className="header-buttons">
+              <button onClick={exportToCSV} className="export-button">
+                Export CSV
+              </button>
+              <button onClick={handleLogout} className="logout-button">
+                Logout
+              </button>
+            </div>
           </div>
         </div>
 
