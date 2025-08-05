@@ -18,14 +18,21 @@ function Register() {
     setIsLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      console.log('User created:', userCredential.user.uid);
+      
       // Save user name in Firestore
+      console.log('Attempting to save user data:', { name, email });
       await setDoc(doc(db, 'users', userCredential.user.uid), {
         name,
         email,
         createdAt: new Date()
       });
+      console.log('User data saved successfully to Firestore');
+      
+      toast.success('Account created successfully!');
       navigate('/dashboard');
     } catch (error) {
+      console.error('Registration error:', error);
       let message = '';
       switch (error.code) {
         case 'auth/email-already-in-use':

@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Users can read and write their own user document
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /transactions/{docId} {
+      // Allow read if logged-in user owns the document
+      allow read: if request.auth != null &&
+                  resource.data.userId == request.auth.uid;
+
+      // Allow create if logged-in user is setting their own UID
+      allow create: if request.auth != null &&
+                    request.resource.data.userId == request.auth.uid;
+
+      // Allow update if logged-in user owns the existing document AND the new one
+      allow update: if request.auth != null &&
+                    resource.data.userId == request.auth.uid &&
+                    request.resource.data.userId == request.auth.uid;
+
+      // Allow delete if logged-in user owns the document
+      allow delete: if request.auth != null &&
+                    resource.data.userId == request.auth.uid;
+    }
+  }
+}

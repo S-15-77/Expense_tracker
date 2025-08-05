@@ -9,6 +9,8 @@ import {
   deleteDoc,
   doc,
   updateDoc,
+  getDoc,
+  setDoc,
 } from 'firebase/firestore';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import ChartComponent from './ChartComponent';
@@ -17,6 +19,7 @@ import { saveAs } from 'file-saver';
 
 function Dashboard({user}) {
   // const [user, setUser] = useState(null);
+  const [userName, setUserName] = useState('');
   const [type, setType] = useState('expense');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
@@ -32,6 +35,34 @@ function Dashboard({user}) {
 
   useEffect(() => {
     if (!user) window.location.href = '/login';
+  }, [user]);
+
+  // Fetch user's name from Firestore
+  useEffect(() => {
+    const fetchUserName = async () => {
+      if (!user) return;
+      try {
+        console.log('Fetching user data for UID:', user.uid);
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        console.log('User document exists:', userDoc.exists());
+        
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          console.log('User data from Firestore:', userData);
+          setUserName(userData.name || user.email?.split('@')[0] || 'User');
+        } else {
+          console.log('No user document found, using email fallback');
+          // Fallback to email username if no document exists
+          setUserName(user.email?.split('@')[0] || 'User');
+        }
+      } catch (error) {
+        console.error('Error fetching user name:', error);
+        // Fallback to email username on error
+        setUserName(user.email?.split('@')[0] || 'User');
+      }
+    };
+
+    fetchUserName();
   }, [user]);
 
   useEffect(() => {
@@ -89,6 +120,25 @@ function Dashboard({user}) {
 
   const handleLogout = () => {
     signOut(auth);
+  };
+
+  // Test function to manually save user name
+  const handleSaveUserName = async () => {
+    const name = prompt('Enter your name:');
+    if (name && user) {
+      try {
+        await setDoc(doc(db, 'users', user.uid), {
+          name: name,
+          email: user.email,
+          createdAt: new Date()
+        });
+        alert('Name saved successfully!');
+        setUserName(name);
+      } catch (error) {
+        console.error('Error saving name:', error);
+        alert('Failed to save name: ' + error.message);
+      }
+    }
   };
 
   const handleEdit = (transaction) => {
@@ -167,8 +217,28 @@ function Dashboard({user}) {
         <div className="dashboard-header">
           <div className="header-content">
             <div className="header-text">
-              <h1>Welcome back, {user?.email?.split('@')[0]}</h1>
+              <h1>Welcome back, {userName || 'Loading...'}</h1>
               <p>Track your expenses and manage your budget</p>
+              {/* Debug info - remove this later */}
+              {/* <small style={{ color: '#888', fontSize: '12px' }}>
+                Debug: User ID: {user?.uid}, Name: {userName}
+              </small> */}
+              <br />
+              {/* <button 
+                onClick={handleSaveUserName} 
+                style={{ 
+                  marginTop: '10px', 
+                  padding: '5px 10px', 
+                  fontSize: '12px',
+                  background: '#40ffbf',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                Set My Name
+              </button> */}
             </div>
             <div className="header-buttons">
               <button onClick={exportToCSV} className="export-button">
