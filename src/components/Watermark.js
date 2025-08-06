@@ -1,5 +1,6 @@
 import React from 'react';
 import './Watermark.css';
+import logo from '../assest/Portfolio Logo.png';
 
 function Watermark() {
   const handleLogoClick = () => {
@@ -11,7 +12,7 @@ function Watermark() {
     <div className="watermark">
       <div className="watermark-content">
         <img 
-          src="/logo192.png" 
+          src={logo}
           alt="Logo" 
           className="watermark-logo"
           onClick={handleLogoClick}
