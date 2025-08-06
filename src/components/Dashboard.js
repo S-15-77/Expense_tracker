@@ -32,6 +32,46 @@ function Dashboard({user}) {
     const today = new Date();
     return today.toISOString().split('T')[0];
   });
+  const [errors, setErrors] = useState({});
+
+  // Validation functions
+  const validateAmount = (amount) => {
+    const num = parseFloat(amount);
+    if (isNaN(num) || num <= 0) {
+      return 'Amount must be a positive number';
+    }
+    if (num > 1000000) {
+      return 'Amount cannot exceed $1,000,000';
+    }
+    return null;
+  };
+
+  const validateTitle = (title) => {
+    if (!title || title.trim().length === 0) {
+      return 'Title is required';
+    }
+    if (title.length > 255) {
+      return 'Title cannot exceed 255 characters';
+    }
+    return null;
+  };
+
+  const validateDate = (dateString) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const minDate = new Date('1900-01-01');
+    
+    if (isNaN(date.getTime())) {
+      return 'Please enter a valid date';
+    }
+    if (date > today) {
+      return 'Date cannot be in the future';
+    }
+    if (date < minDate) {
+      return 'Date cannot be before 1900';
+    }
+    return null;
+  };
 
   useEffect(() => {
     if (!user) window.location.href = '/login';
@@ -79,14 +119,44 @@ function Dashboard({user}) {
 
   const handleAddTransaction = async (e) => {
     e.preventDefault();
-    if (!amount || !category || !title || !date) return;
+    
+    // Clear previous errors
+    setErrors({});
+    
+    // Validate all inputs
+    const validationErrors = {};
+    
+    const amountError = validateAmount(amount);
+    if (amountError) validationErrors.amount = amountError;
+    
+    const titleError = validateTitle(title);
+    if (titleError) validationErrors.title = titleError;
+    
+    const dateError = validateDate(date);
+    if (dateError) validationErrors.date = dateError;
+    
+    if (!category) {
+      validationErrors.category = 'Please select a category';
+    }
+    
+    // If there are validation errors, show them and return
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    
+    // Prevent duplicate submissions
+    const submitButton = e.target.querySelector('button[type="submit"]');
+    if (submitButton.disabled) return;
+    submitButton.disabled = true;
+    
     try {
       if (editId) {
         await updateDoc(doc(db, 'transactions', editId), {
           type,
           amount: parseFloat(amount),
           category,
-          title,
+          title: title.trim(),
           date,
         });
         setEditId(null);
@@ -95,19 +165,28 @@ function Dashboard({user}) {
           type,
           amount: parseFloat(amount),
           category,
-          title,
+          title: title.trim(),
           date,
           userId: user.uid,
           createdAt: new Date(),
         });
       }
+      
+      // Clear form
       setAmount('');
       setCategory('');
       setCustomCategory('');
       setTitle('');
       setDate(new Date().toISOString().split('T')[0]);
+      setErrors({});
+      
     } catch (err) {
-      alert(err.message);
+      setErrors({ submit: err.message });
+    } finally {
+      // Re-enable submit button after a short delay
+      setTimeout(() => {
+        if (submitButton) submitButton.disabled = false;
+      }, 1000);
     }
   };
 
@@ -268,6 +347,11 @@ function Dashboard({user}) {
 
         <div className="transaction-section">
           <h3>Add Transaction</h3>
+          {errors.submit && (
+            <div className="error-message" style={{color: 'red', marginBottom: '10px'}}>
+              {errors.submit}
+            </div>
+          )}
           <form onSubmit={handleAddTransaction} className="transaction-form">
             <div className="form-row">
               <div className="form-group">
@@ -282,52 +366,114 @@ function Dashboard({user}) {
                 </select>
               </div>
               <div className="form-group">
-                <label htmlFor="amount">Amount</label>
+                <label htmlFor="amount">Amount *</label>
                 <input
                   id="amount"
                   type="number"
-                  placeholder="Enter amount"
+                  step="0.01"
+                  min="0.01"
+                  max="1000000"
+                  placeholder="Enter amount (max $1,000,000)"
                   value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
+                  onChange={(e) => {
+                    setAmount(e.target.value);
+                    if (errors.amount) {
+                      const newErrors = {...errors};
+                      delete newErrors.amount;
+                      setErrors(newErrors);
+                    }
+                  }}
                   required
+                  style={{
+                    borderColor: errors.amount ? 'red' : undefined
+                  }}
                 />
+                {errors.amount && (
+                  <div className="error-text" style={{color: 'red', fontSize: '12px', marginTop: '4px'}}>
+                    {errors.amount}
+                  </div>
+                )}
               </div>
             </div>
             <div className="form-group">
-              <label htmlFor="title">Title</label>
+              <label htmlFor="title">Title *</label>
               <input
                 id="title"
                 type="text"
-                placeholder="Enter transaction title"
+                maxLength="255"
+                placeholder="Enter transaction title (max 255 characters)"
                 value={title}
-                onChange={e => setTitle(e.target.value)}
+                onChange={e => {
+                  setTitle(e.target.value);
+                  if (errors.title) {
+                    const newErrors = {...errors};
+                    delete newErrors.title;
+                    setErrors(newErrors);
+                  }
+                }}
                 required
+                style={{
+                  borderColor: errors.title ? 'red' : undefined
+                }}
               />
+              <div style={{fontSize: '12px', color: '#666', marginTop: '2px'}}>
+                {title.length}/255 characters
+              </div>
+              {errors.title && (
+                <div className="error-text" style={{color: 'red', fontSize: '12px', marginTop: '4px'}}>
+                  {errors.title}
+                </div>
+              )}
             </div>
             <div className="form-group">
-              <label htmlFor="date">Date</label>
+              <label htmlFor="date">Date *</label>
               <input
                 id="date"
                 type="date"
+                min="1900-01-01"
+                max={new Date().toISOString().split('T')[0]}
                 value={date}
-                onChange={e => setDate(e.target.value)}
+                onChange={e => {
+                  setDate(e.target.value);
+                  if (errors.date) {
+                    const newErrors = {...errors};
+                    delete newErrors.date;
+                    setErrors(newErrors);
+                  }
+                }}
                 required
+                style={{
+                  borderColor: errors.date ? 'red' : undefined
+                }}
               />
+              {errors.date && (
+                <div className="error-text" style={{color: 'red', fontSize: '12px', marginTop: '4px'}}>
+                  {errors.date}
+                </div>
+              )}
             </div>
             <div className="form-group">
-              <label htmlFor="category">Category</label>
+              <label htmlFor="category">Category *</label>
               <select
                 id="category"
                 value={predefinedCategories.includes(category) ? category : (category ? 'custom' : '')}
-                onChange={e => {
+                onChange={(e) => {
                   if (e.target.value === 'custom') {
                     setCategory('');
                   } else {
                     setCategory(e.target.value);
                     setCustomCategory('');
                   }
+                  if (errors.category) {
+                    const newErrors = {...errors};
+                    delete newErrors.category;
+                    setErrors(newErrors);
+                  }
                 }}
                 required
+                style={{
+                  borderColor: errors.category ? 'red' : undefined
+                }}
               >
                 <option value="" disabled>Select category</option>
                 {predefinedCategories.map(cat => (
@@ -335,10 +481,16 @@ function Dashboard({user}) {
                 ))}
                 <option value="custom">Custom...</option>
               </select>
+              {errors.category && (
+                <div className="error-text" style={{color: 'red', fontSize: '12px', marginTop: '4px'}}>
+                  {errors.category}
+                </div>
+              )}
               {(!predefinedCategories.includes(category)) && (
                 <input
                   type="text"
-                  placeholder="Enter custom category"
+                  maxLength="100"
+                  placeholder="Enter custom category (max 100 characters)"
                   value={customCategory}
                   onChange={e => {
                     setCustomCategory(e.target.value);
