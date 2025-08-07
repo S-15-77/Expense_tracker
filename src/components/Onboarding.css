@@ -105,4 +105,12 @@ body, html {
   font-style: italic;
   border: 2px dashed #2b2b2b;
   box-shadow: 0 0 20px #1affc6a0;
+  overflow: hidden;
+}
+
+.dashboard-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 14px;
 }

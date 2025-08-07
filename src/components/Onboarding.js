@@ -2,6 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Onboarding.css';
+import dashboardPreview from '../assest/React App.png';
 
 function Onboarding() {
   const navigate = useNavigate();
@@ -31,7 +32,9 @@ function Onboarding() {
         </div>
 
         <div className="mockup-area">
-          <div className="screen-mockup">[📊 Dashboard Preview Here]</div>
+          <div className="screen-mockup">
+            <img src={dashboardPreview} alt="BudgetWise Dashboard Preview" className="dashboard-preview-img" />
+          </div>
         </div>
       </div>
     </div>
